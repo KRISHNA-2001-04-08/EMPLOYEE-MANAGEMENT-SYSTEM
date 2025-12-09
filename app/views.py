@@ -81,8 +81,12 @@ def edit_employee(request, id):
 
 # ---------------------- DELETE EMPLOYEE ----------------------
 @login_required(login_url="login")
+
 def delete_employee(request, id):
     emp = get_object_or_404(Employee, id=id)
-    emp.delete()
-    messages.success(request, "Employee deleted successfully")
-    return redirect("home")
+
+    if request.method == "POST":
+        emp.delete()
+        return redirect("home")
+
+    return render(request, "delete.html", {"emp": emp})
