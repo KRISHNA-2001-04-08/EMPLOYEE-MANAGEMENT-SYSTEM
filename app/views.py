@@ -34,17 +34,24 @@ def logout_user(request):
 
 
 # ---------------------- HOME (SEARCH + LIST) ----------------------
-@login_required(login_url="login")
+from django.core.paginator import Paginator
+
+@login_required(login_url="/login/")
 def home(request):
     q = request.GET.get("q", "")
 
-    employees = Employee.objects.filter(
-        Q(name__icontains=q)
-        | Q(email__icontains=q)
-        | Q(department__icontains=q)
-    )
+    employee_list = Employee.objects.filter(
+        Q(name__icontains=q) |
+        Q(email__icontains=q) |
+        Q(department__icontains=q)
+    ).order_by('-id')
+
+    paginator = Paginator(employee_list, 10)   # ✅ 5 employees per page
+    page_number = request.GET.get('page')
+    employees = paginator.get_page(page_number)
 
     return render(request, "home.html", {"employees": employees})
+
 
 
 # ---------------------- ADD EMPLOYEE ----------------------
